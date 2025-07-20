@@ -1,4 +1,18 @@
 package com.example.HealthCareSystem.Dto.Request;
 
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class VerifyEmailReq {
+    @NotBlank(message = "Email is required")
+    String email;
+
+    @NotBlank(message = "Verification code is required")
+    String verificationCode;
 }
