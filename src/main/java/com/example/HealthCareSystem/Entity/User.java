@@ -28,7 +28,7 @@ public class User {
     String phoneNumber;
     LocalDateTime lastLogin;
 
-    Boolean idActive;
+    Boolean isActive;
 
     @ManyToMany
     Set<Role> roles;
