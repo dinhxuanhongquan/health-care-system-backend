@@ -27,6 +27,7 @@ public class Doctor {
     Double rating;
     Integer totalViews;
     String isAvailable;
+    LocalDateTime dob;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 
