@@ -20,6 +20,7 @@ public class ChatMessage {
 
     String patientName;
     String patientEmail;
+    String doctorEmail;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     String messageContent;
