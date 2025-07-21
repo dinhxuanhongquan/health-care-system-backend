@@ -9,8 +9,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateMeReq {
-    String username;
-    String password;
     String email;
     String phoneNumber;
     Boolean isActive;
