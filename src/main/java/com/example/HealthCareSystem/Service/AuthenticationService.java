@@ -10,6 +10,7 @@ import com.example.HealthCareSystem.Entity.InvalidatedToken;
 import com.example.HealthCareSystem.Entity.Role;
 import com.example.HealthCareSystem.Entity.User;
 import com.example.HealthCareSystem.Exception.AppException;
+import com.example.HealthCareSystem.Exception.ErrorCode;
 import com.example.HealthCareSystem.Repository.InvalidatedRepository;
 import com.example.HealthCareSystem.Repository.UserRepository;
 import com.nimbusds.jose.*;
@@ -74,7 +75,7 @@ public class AuthenticationService {
     private void validateTokenNotEmpty(String token, String methodName){
         if (token == null || token.trim().isEmpty()){
             log.info("{} attempted with null or empty token", methodName);
-            throw new AppException("INVALID_TOKEN");
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
     }
 
@@ -102,7 +103,7 @@ public class AuthenticationService {
             return jwsObject.serialize();
         } catch (Exception e) {
             log.error("Error generating token: {}", e.getMessage());
-            throw new AppException("TOKEN_GENERATION_FAILED");
+            throw new AppException(ErrorCode.TOKEN_GENERATION_FAILED);
         }
     }
 
@@ -121,9 +122,9 @@ public class AuthenticationService {
 
         var verified = signedJWT.verify(verifier);
 
-        if(!verified && expiryTime.after(new Date())) throw new AppException("INVALID_TOKEN");
+        if(!verified && expiryTime.after(new Date())) throw new AppException(ErrorCode.INVALID_TOKEN);
         if(invalidatedRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())){
-            throw new AppException("INVALID_TOKEN");
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
         return signedJWT;
@@ -134,10 +135,10 @@ public class AuthenticationService {
     public AuthenticationRes authenticate(AuthenticationReq request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new AppException("USER_NOT_FOUND"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
-        if(!authenticated) throw new AppException("INVALID_CREDENTIALS");
+        if(!authenticated) throw new AppException(ErrorCode.INVALID_CREDENTIALS);
         var token = generateToken(user);
         return AuthenticationRes.builder()
                 .token(token)
@@ -164,7 +165,7 @@ public class AuthenticationService {
     public void logout(LogoutReq request){
         if(request == null || request.getToken() == null || request.getToken().trim().isEmpty()){
             log.info("Logout attempted with null or empty token");
-            throw new AppException("INVALID_TOKEN");
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
 
         try {
@@ -180,7 +181,7 @@ public class AuthenticationService {
     public AuthenticationRes refresh(RefreshReq request) throws ParseException, JOSEException {
         if (request == null || request.getToken() == null || request.getToken().trim().isEmpty()){
             log.info("Refresh attempted with null or empty token");
-            throw new AppException("INVALID_TOKEN");
+            throw new AppException(ErrorCode.INVALID_TOKEN);
         }
         var signedJWT = verifyToken(request.getToken(), true);
         var jit = signedJWT.getJWTClaimsSet().getJWTID();
@@ -189,7 +190,7 @@ public class AuthenticationService {
 
         var username = signedJWT.getJWTClaimsSet().getSubject();
         var user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new AppException("USER_NOT_FOUND"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         var token = generateToken(user);
         return AuthenticationRes.builder()
@@ -209,7 +210,7 @@ public class AuthenticationService {
                 log.debug("Token with ID: {} has been invalidated", jti);
             } catch (ObjectOptimisticLockingFailureException e) {
                 log.error("Failed to invalidate token with ID: {} due to optimistic locking failure", jti);
-                throw new AppException("TOKEN_INVALIDATION_FAILED");
+                throw new AppException(ErrorCode.INVALID_TOKEN);
             }
         }
     }
