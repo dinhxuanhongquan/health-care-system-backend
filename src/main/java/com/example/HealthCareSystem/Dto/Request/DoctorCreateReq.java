@@ -17,7 +17,7 @@ public class DoctorCreateReq {
     Boolean isActive;
     Double rating;
     Integer totalViews;
-    String isAvailable;
+    Boolean isAvailable;
 
     String userId;
 }

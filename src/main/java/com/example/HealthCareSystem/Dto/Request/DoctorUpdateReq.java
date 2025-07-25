@@ -17,5 +17,5 @@ public class DoctorUpdateReq {
     Boolean isActive;
     Double rating;
     Integer totalViews;
-    String isAvailable;
+    Boolean isAvailable;
 }

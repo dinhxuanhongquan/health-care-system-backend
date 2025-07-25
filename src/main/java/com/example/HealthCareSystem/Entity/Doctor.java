@@ -26,7 +26,7 @@ public class Doctor {
     Boolean isActive;
     Double rating;
     Integer totalViews;
-    String isAvailable;
+    Boolean isAvailable;
     LocalDateTime dob;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
